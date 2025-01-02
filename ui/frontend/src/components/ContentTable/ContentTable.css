@@ -1,0 +1,91 @@
+.content-table-container {
+    padding: 20px;
+    max-width: 1500px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    text-align: center;
+    color: #333;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filters input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.content-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.content-table th, .content-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.content-table th {
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+}
+
+.content-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.content-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.content-table td {
+    font-size: 14px;
+}
+
+.content-table th:hover {
+    background-color: #45a049;
+}
+
+.content-table td, .content-table th {
+    text-align: center;
+}
+
+.content-table td {
+    word-wrap: break-word;
+}
+
+.column-visibility {
+    margin-bottom: 15px;
+}
+
+.column-visibility h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.column-visibility label {
+    margin-right: 15px;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #f1f1f1;
+    color: #333;
+    padding: 5px 10px;
+    margin: 3px;
+    border-radius: 15px;
+    font-size: 12px;
+}
