@@ -6,6 +6,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq" // PostgreSQL driver
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -23,6 +24,7 @@ type Video struct {
 	CommentCount int
 	Topics       []string
 	Tags         []string
+	HashTags     []string
 }
 
 // YouTubeVideoDetails represents the JSON structure of the YouTube Data API video details response
@@ -142,6 +144,7 @@ func fetchVideoDetails(apiKey string, videoIDs []string) ([]Video, error) {
 				CommentCount: StringToInt(item.Statistics.CommentCount),
 				Topics:       extractTopics(item.TopicDetails.TopicCategories),
 				Tags:         item.Snippet.Tags,
+				HashTags:     extractHashtags([]string{item.Snippet.Description, item.Snippet.Title}),
 			}
 			videos = append(videos, video)
 		}
@@ -174,6 +177,24 @@ func join(elements []string, delimiter string) string {
 	return result
 }
 
+// ExtractHashtags extracts all hashtags from a given string
+func extractHashtags(inputs []string) []string {
+	// Define the regular expression to match hashtags
+	re := regexp.MustCompile(`#(\w+)`)
+	var hashtags []string
+
+	// Iterate over the input strings and extract hashtags
+	for _, input := range inputs {
+		// Find all matches in the current string
+		matches := re.FindAllStringSubmatch(input, -1)
+		// Extract the matched groups (without #) and append to the result
+		for _, match := range matches {
+			hashtags = append(hashtags, match[1])
+		}
+	}
+	return hashtags
+}
+
 func StringToInt(s string) int {
 	num, err := strconv.Atoi(s)
 	if err != nil {
@@ -186,14 +207,15 @@ func StringToInt(s string) int {
 func writeToPostgres(videos []Video, db *sql.DB) error {
 	// Prepare the SQL statement for inserting data
 	query := `
-		INSERT INTO videos (id, channel, title, description, published_at, views, likes, dislikes, comment_count, topics, tags)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (id) DO UPDATE SET
+		INSERT INTO videos (id, channel, title, description, published_at, views, likes, dislikes, comment_count, topics, tags, hash_tags)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT (id) DO UPDATE SET
 			views = EXCLUDED.views,
 			likes = EXCLUDED.likes,
 			dislikes = EXCLUDED.dislikes,
 			comment_count = EXCLUDED.comment_count,
 			topics = EXCLUDED.topics,
-			tags = EXCLUDED.tags
+			tags = EXCLUDED.tags,
+			hash_tags = EXCLUDED.hash_tags
 	`
 
 	for _, video := range videos {
@@ -211,6 +233,7 @@ func writeToPostgres(videos []Video, db *sql.DB) error {
 			video.CommentCount,
 			join(video.Topics, ";"), // Join the topics into a single string
 			join(video.Tags, ";"),   // Join the tags into a single string
+			join(video.HashTags, ";"),
 		)
 		if err != nil {
 			return fmt.Errorf("failed to insert video: %v", err)
@@ -226,7 +249,7 @@ func main() {
 	//apiKey := "AIzaSyBRW0_OJUEpFeZxd7jcGJPTJ8h6fbx8HRY" // Replace with your YouTube Data API key
 	channelID := "UCUU-gEwkU8wo8n2ihweWpkw" // Replace with the channel ID
 
-	videoIDs, err := fetchChannelVideos(apiKey, channelID, 500)
+	videoIDs, err := fetchChannelVideos(apiKey, channelID, 10)
 	if err != nil {
 		fmt.Printf("Error fetching channel videos: %v\n", err)
 		return
