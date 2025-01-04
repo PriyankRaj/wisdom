@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import './ContentTable.css';
+import Select from "react-select";
+
 
 const ContentTable = ({ data }) => {
     // States for sorting, filtering and data
     const [filteredData, setFilteredData] = useState(data);
     const [sortConfig, setSortConfig] = useState(null);
+
     const [filters, setFilters] = useState({
         title: '',
         description: '',
         topics: '',
         tags: '',
+        hash_tags: '',
         startDate: '',
         endDate: '',
     });
@@ -22,9 +26,10 @@ const ContentTable = ({ data }) => {
         views: true,
         likes: false,
         dislikes: false,
-        comment_count: true,
+        comment_count: false,
         topics: true,
         tags: true,
+        hash_tags: true,
     });
 
     // Handle sorting
@@ -50,8 +55,6 @@ const ContentTable = ({ data }) => {
                 return 0;
             });
         }
-        console.log("sortableItems")
-        console.log(sortableItems)
         console.log("filteredData")
         console.log(filteredData)
 
@@ -77,12 +80,13 @@ const ContentTable = ({ data }) => {
 
             const isDateInRange =
                 (!startDate || publishedAt >= startDate) && (!endDate || publishedAt <= endDate);
-
+            
             return (
                 item.title.toLowerCase().includes(newFilters.title.toLowerCase()) &&
                 item.description.toLowerCase().includes(newFilters.description.toLowerCase()) &&
                 item.topics.toLowerCase().includes(newFilters.topics.toLowerCase()) &&
                 item.tags.toLowerCase().includes(newFilters.tags.toLowerCase()) &&
+                item.hash_tags.toLowerCase().includes(newFilters.hash_tags.toLowerCase()) &&
                 isDateInRange
             );
         });
@@ -106,7 +110,7 @@ const ContentTable = ({ data }) => {
     };
 
     const formatAsTags = (topics) => {
-        return topics.split(';').map((topic, index) => (
+        return (topics || "").split(';').map((topic, index) => (
             <span key={index} className="tag">
       {topic.trim()}
     </span>
@@ -115,7 +119,7 @@ const ContentTable = ({ data }) => {
 
     return (
         <div className="content-table-container">
-            <h3>Video list</h3>
+            <h3>Total Videos - {data.length}</h3>
 
             {/* Filter Inputs */}
             <div className="filters">
@@ -148,6 +152,13 @@ const ContentTable = ({ data }) => {
                     onChange={handleFilterChange}
                 />
                 <input
+                    type="text"
+                    name="hash_tags"
+                    placeholder="Filter by HashTags"
+                    value={filters.hash_tags}
+                    onChange={handleFilterChange}
+                />,
+                <input
                     type="date"
                     name="startDate"
                     value={filters.startDate}
@@ -160,7 +171,9 @@ const ContentTable = ({ data }) => {
                     onChange={handleFilterChange}
                 />
             </div>
-
+            <div>
+                <h4>Filtered Videos - {sortedData.length}</h4>
+            </div>
             {/* Column Visibility Toggles */}
             <div className="column-visibility">
                 <h4>Show/Hide Columns</h4>
@@ -244,6 +257,14 @@ const ContentTable = ({ data }) => {
                     />
                     Tags
                 </label>
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={visibleColumns.hash_tags}
+                        onChange={() => toggleColumnVisibility('hash_tags')}
+                    />
+                    Hash Tags
+                </label>
             </div>
 
             {/* Table */}
@@ -253,13 +274,15 @@ const ContentTable = ({ data }) => {
                     {visibleColumns.id && <th onClick={() => requestSort('id')}>ID</th>}
                     {visibleColumns.title && <th onClick={() => requestSort('title')}>Title</th>}
                     {visibleColumns.description && <th onClick={() => requestSort('description')}>Description</th>}
-                    {visibleColumns.published_at && <th onClick={() => requestSort('published_at')}>PUBLISHED_AT</th>}
+                    {visibleColumns.published_at && <th onClick={() => requestSort('published_at')}>Published at</th>}
                     {visibleColumns.views && <th onClick={() => requestSort('views')}>Views</th>}
                     {visibleColumns.likes && <th onClick={() => requestSort('Likes')}>Likes</th>}
                     {visibleColumns.dislikes && <th onClick={() => requestSort('Dislikes')}>Dislikes</th>}
-                    {visibleColumns.comment_count && <th onClick={() => requestSort('comment_count')}>Comment count</th>}
+                    {visibleColumns.comment_count &&
+                        <th onClick={() => requestSort('comment_count')}>Comment count</th>}
                     {visibleColumns.topics && <th onClick={() => requestSort('topics')}>Topics</th>}
                     {visibleColumns.tags && <th onClick={() => requestSort('tags')}>Tags</th>}
+                    {visibleColumns.hash_tags && <th onClick={() => requestSort('hash_tags')}>Hash Tags</th>}
                 </tr>
                 </thead>
                 <tbody>
@@ -275,6 +298,7 @@ const ContentTable = ({ data }) => {
                         {visibleColumns.comment_count && <td>{item.comment_count}</td>}
                         {visibleColumns.topics && <td>{formatAsTags(item.topics)}</td>}
                         {visibleColumns.tags && <td>{formatAsTags(item.tags)}</td>}
+                        {visibleColumns.hash_tags && <td>{formatAsTags(item.hash_tags)}</td>}
                     </tr>
                 ))}
                 </tbody>
