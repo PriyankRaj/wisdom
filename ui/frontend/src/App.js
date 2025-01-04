@@ -9,7 +9,7 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/data');
+        const response = await axios.get('http://ec2-3-110-148-174.ap-south-1.compute.amazonaws.com:5000/api/data');
         setData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
