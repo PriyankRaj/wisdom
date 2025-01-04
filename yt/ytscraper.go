@@ -249,7 +249,7 @@ func main() {
 	//apiKey := "AIzaSyBRW0_OJUEpFeZxd7jcGJPTJ8h6fbx8HRY" // Replace with your YouTube Data API key
 	channelID := "UCUU-gEwkU8wo8n2ihweWpkw" // Replace with the channel ID
 
-	videoIDs, err := fetchChannelVideos(apiKey, channelID, 10)
+	videoIDs, err := fetchChannelVideos(apiKey, channelID, 500)
 	if err != nil {
 		fmt.Printf("Error fetching channel videos: %v\n", err)
 		return
