@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import './ContentTable.css';
-import Select from "react-select";
+import { useNavigate } from "react-router-dom";
+
 
 
 const ContentTable = ({ data }) => {
     // States for sorting, filtering and data
     const [filteredData, setFilteredData] = useState(data);
     const [sortConfig, setSortConfig] = useState(null);
+    const navigate = useNavigate();
+
 
     const [filters, setFilters] = useState({
         title: '',
@@ -38,7 +41,6 @@ const ContentTable = ({ data }) => {
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
         }
-
         setSortConfig({ key, direction });
     };
 
@@ -80,7 +82,7 @@ const ContentTable = ({ data }) => {
 
             const isDateInRange =
                 (!startDate || publishedAt >= startDate) && (!endDate || publishedAt <= endDate);
-            
+
             return (
                 item.title.toLowerCase().includes(newFilters.title.toLowerCase()) &&
                 item.description.toLowerCase().includes(newFilters.description.toLowerCase()) &&
@@ -115,6 +117,10 @@ const ContentTable = ({ data }) => {
       {topic.trim()}
     </span>
         ));
+    };
+
+    const handleNavigate = () => {
+        navigate("/analysis", { state: { sortedData } });
     };
 
     return (
@@ -157,7 +163,7 @@ const ContentTable = ({ data }) => {
                     placeholder="Filter by HashTags"
                     value={filters.hash_tags}
                     onChange={handleFilterChange}
-                />,
+                />
                 <input
                     type="date"
                     name="startDate"
@@ -173,6 +179,10 @@ const ContentTable = ({ data }) => {
             </div>
             <div>
                 <h4>Filtered Videos - {sortedData.length}</h4>
+                {/* Button to navigate to Analysis */}
+                <button onClick={handleNavigate} style={{ padding: "10px 20px", cursor: "pointer" }}>
+                    Open Analysis
+                </button>
             </div>
             {/* Column Visibility Toggles */}
             <div className="column-visibility">
